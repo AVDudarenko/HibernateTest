@@ -1,27 +1,24 @@
 package org.example;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.Environment;
 
-import java.util.HashMap;
-import java.util.Map;
 
+/**
+ * Class for setup Session Factory
+ */
 public class HibernateSessionFactoryUtil {
-    private static final SessionFactory sessionFactory = buildSessionFactory();
+    private static SessionFactory sessionFactory = buildSessionFactory();
 
     private static SessionFactory buildSessionFactory() {
+        final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
+                .configure() // configures settings from hibernate.cfg.xml
+                .build();
         try {
-            Configuration configuration = new Configuration();
-            configuration.configure();
-
-
-            return configuration
-                    .buildSessionFactory();
+            sessionFactory = new MetadataSources(registry).buildMetadata().buildSessionFactory();
+            return sessionFactory;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(

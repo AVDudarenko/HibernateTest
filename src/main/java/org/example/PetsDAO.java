@@ -2,32 +2,38 @@ package org.example;
 
 import org.hibernate.Session;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
 
+/**
+ * Class which implement CRUD operations for DB.
+ */
 public class PetsDAO {
     public void save(PetsInfo petsInfo) {
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession(); //открываем сессию
         session.beginTransaction();
-        session.save(petsInfo);
-        session.flush();
+        session.persist(petsInfo);
+        session.getTransaction().commit();
         session.close();
     }
 
     public void delete(PetsInfo petsInfo) {
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
         session.beginTransaction();
-        session.delete(petsInfo);
-        session.flush();
+        session.remove(petsInfo);
         session.close();
     }
 
-    public List<PetsInfo> getAll(){
+    public List<PetsInfo> getAll() {
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaQuery<PetsInfo> criteriaQuery = builder.createQuery(PetsInfo.class);
-        return session.createQuery(criteriaQuery).getResultList();
+        session.beginTransaction();
+        String sql = "select p from PetsInfo p";
+        List<PetsInfo> result = session.createQuery(sql, PetsInfo.class).list();
+        for (PetsInfo petsInfo : result) {
+            System.out.println("Pet (" + petsInfo.getName() + ") : " + petsInfo.getAge());
+        }
+        session.getTransaction().commit();
+        session.close();
+        return result;
     }
 
     public PetsInfo getById(Integer id) {
